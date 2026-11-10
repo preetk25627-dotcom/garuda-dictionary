@@ -67,7 +67,7 @@ function openWord(id){selected=words.find(w=>w.id===id);if(!selected)return;cons
 grid.addEventListener("click",e=>{const card=e.target.closest("[data-id]");if(card)openWord(Number(card.dataset.id))});search.addEventListener("input",render);
 document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector(".filter.active").classList.remove("active");btn.classList.add("active");filter=btn.dataset.filter;render()}));
 document.querySelectorAll(".hint-word").forEach(btn=>btn.addEventListener("click",()=>{search.value=btn.dataset.query;savedOnly=false;render();search.focus()}));
-document.getElementById("savedToggle").addEventListener("click",e=>{savedOnly=!savedOnly;e.currentTarget.style.background=savedOnly?"#e8ede4":"transparent";render()});
+document.getElementById("savedToggle").addEventListener("click",e=>{savedOnly=!savedOnly;e.currentTarget.setAttribute("aria-pressed",String(savedOnly));e.currentTarget.style.background=savedOnly?"#e8ede4":"transparent";render()});
 document.getElementById("clearSearch").addEventListener("click",()=>{search.value="";filter="all";savedOnly=false;document.querySelector(".filter.active").classList.remove("active");document.querySelector('[data-filter="all"]').classList.add("active");render()});
 document.getElementById("dialogClose").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
 document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});
@@ -82,6 +82,7 @@ const safeText = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","
 
 document.getElementById("browseToggle").addEventListener("click", () => {
   browsePanel.hidden = !browsePanel.hidden;
+  document.getElementById("browseToggle").setAttribute("aria-expanded", String(!browsePanel.hidden));
   if (!browsePanel.hidden) renderBrowse();
 });
 function renderBrowse() {
@@ -132,6 +133,7 @@ document.getElementById("voiceSearch").addEventListener("click", () => {
 });
 document.getElementById("textSizeToggle").addEventListener("click", event => {
   document.body.classList.toggle("large-text");
+  event.currentTarget.setAttribute("aria-pressed", String(document.body.classList.contains("large-text")));
   event.currentTarget.textContent = document.body.classList.contains("large-text") ? "A− Normal text" : "A+ Larger text";
 });
 document.getElementById("sentenceFind").addEventListener("click", () => {
