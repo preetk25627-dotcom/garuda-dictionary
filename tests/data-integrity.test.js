@@ -1,9 +1,10 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const vm = require("node:vm");
 
-const source = fs.readFileSync(new URL("../app.js", import.meta.url), "utf8");
+const source = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
 const match = source.match(/^const words=(\[[\s\S]*?\])\.map\(\(x,i\)=>/m);
 
 test("dictionary starter dataset has 55 records with required fields", () => {
@@ -26,7 +27,7 @@ test("dictionary starter dataset has 55 records with required fields", () => {
   }
 });
 
-test("the starter data test explicitly does not claim linguistic validation", () => {
-  const readme = fs.readFileSync(new URL("../README.md", import.meta.url), "utf8");
+test("the README distinguishes structural checks from linguistic validation", () => {
+  const readme = fs.readFileSync(path.join(__dirname, "..", "README.md"), "utf8");
   assert.match(readme, /do \*\*not\*\* verify linguistic accuracy/i);
 });
