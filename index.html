@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f5ef"><meta name="description" content="Hindi-English dictionary with Devanagari and Roman search.">
+<title>Garuda — Hindi Dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="#"><span class="brand-mark">ग</span><span>garuda<span class="brand-light">.</span></span></a><div class="top-note">A Hindi · English word companion</div><button class="saved-toggle" id="savedToggle" type="button">♡ Saved words <b id="savedCount">0</b></button></header>
+<main>
+<section class="hero"><p class="eyebrow">✳ &nbsp; FIND THE RIGHT WORD</p><h1>Words open<br><em>worlds.</em></h1><p class="hero-copy">Explore Hindi words, their meanings, and the little details that bring them to life.</p>
+<div class="search-wrap"><span class="search-icon">⌕</span><label class="sr-only" for="searchInput">Search dictionary</label><input id="searchInput" type="search" placeholder="Search in Hindi, Roman or English…" autocomplete="off"><kbd>⌘ K</kbd></div>
+<p class="search-hint">Try <button class="hint-word" data-query="प्रेम">प्रेम</button>, <button class="hint-word" data-query="pyaar">pyaar</button> or <button class="hint-word" data-query="hope">hope</button></p></section>
+<section class="dictionary-section"><div class="section-heading"><div><p class="eyebrow">THE COLLECTION</p><h2 id="listHeading">Explore words</h2></div><span class="result-count" id="resultCount">55 words</span></div>
+<div class="filters"><button class="filter active" data-filter="all">All words</button><button class="filter" data-filter="noun">Nouns</button><button class="filter" data-filter="verb">Verbs</button><button class="filter" data-filter="adjective">Adjectives</button></div>
+<div class="word-grid" id="wordGrid" aria-live="polite"></div><div class="empty-state" id="emptyState" hidden><span>⌕</span><h3>No words found</h3><p>Try another spelling or search in a different language.</p><button id="clearSearch" class="text-button">Clear search</button></div></section>
+<section class="note-strip"><span class="note-icon">✳</span><p><strong>Language is always growing.</strong> This starter collection is a work in progress. Help us improve it with careful review and thoughtful contributions.</p></section>
+</main><footer><span class="brand-footer">गरुड़ · GARUDA</span><span>Made for curious minds.</span></footer>
+<dialog id="wordDialog" class="word-dialog"><button class="dialog-close" id="dialogClose" aria-label="Close">×</button><div id="dialogContent"></div></dialog>
+<script src="app.js"></script></body></html>
