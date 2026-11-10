@@ -1,51 +1,49 @@
 # Garuda Dictionary
 
-A lightweight Hindi–English dictionary with search across Devanagari, Romanised Hindi, and English.
+A mobile-friendly Hindi–English dictionary for exploring a starter collection of Hindi words.
 
 ## Live demo
-
-Production URL: https://garuda-dictionary.vercel.app
+https://garuda-dictionary.vercel.app
 
 ## Features
-- 55 starter entries with Hindi headwords, Roman spellings, parts of speech, English glosses, Hindi definitions, and bilingual examples.
-- Search across Devanagari, Romanised spelling, English meaning, definitions, and examples.
-- Filter by part of speech.
-- Save favourite words in browser localStorage (with graceful handling if browser storage is unavailable).
+- 55 starter entries with Devanagari headwords, Roman spellings, parts of speech, English glosses, Hindi definitions and bilingual examples.
+- Ranked search across Hindi, Romanised spellings, English meanings, definitions and examples, with a small curated alias list and conservative typo matching.
+- Part-of-speech filters, saved words and alphabetical browsing.
+- Practice quiz, Hindi voice search where browser speech recognition is supported, sentence headword finder and larger-text control.
+- Installable/offline-ready PWA shell using a service worker.
 - Responsive layout and Cmd/Ctrl + K search shortcut.
-- No framework, package installation, or build step.
 
 ## Run locally
-1. Clone this repository.
-2. Open index.html in a browser, or run `python3 -m http.server 8000`.
-3. Visit http://localhost:8000.
-
-## Run data-integrity tests
-Requires Node.js 18 or later; no third-party packages are needed.
-
+Open `index.html` through a local server, for example:
 ```bash
-node --test tests/*.test.js
+python3 -m http.server 8000
 ```
+Then visit http://localhost:8000.
 
-These tests check dataset structure and required fields only. They do **not** verify linguistic accuracy.
-
-## Project files
-- index.html — page structure
-- styles.css — responsive interface
-- app.js — dictionary records and interactions
-- `tests/data-integrity.test.js` — dependency-free starter-data structure test
-- `DEMO_SCRIPT.md` — 2–3 minute recording outline
-- `DRIVE_README.md` — prepared contents for the submission Drive folder
-- tests/data-integrity.test.js — starter-dataset integrity checks
+## Tests
+Requires Node.js 18 or later:
+```bash
+node --test tests/*.test.cjs
+```
+The tests cover the starter data structure and ranked search behavior. They do not establish that every dictionary meaning, transliteration or example has been independently reviewed by a linguist.
 
 ## Data quality
-The included records are a starter dataset, not a certified lexicon. Hindi spellings, transliterations, grammatical labels, meanings, and example usage need review by fluent Hindi speakers and reliable dictionaries before production or formal submission. Romanisation is a practical search aid, not one strict transliteration standard. Gender metadata and source citations are not yet included.
+The 55 records remain a starter dataset. Meanings, transliterations, grammatical labels and examples should be reviewed against reliable Hindi dictionaries and by fluent speakers before describing the collection as authoritative. Search aliases are convenience mappings, not a complete transliteration standard.
 
-## Next steps
-- Verify every entry and record references with fluent Hindi speakers or reliable dictionaries.
-- Add gender and inflection information where useful.
-- Add browser-level tests for search, filters, dialogs, and saved words.
-- Add accessible pronunciation and offline support.
-- Add contribution guidelines.
+## Project files
+- `index.html` — application structure
+- `styles.css` — responsive interface
+- `app.js` — dictionary data and interface behavior
+- `search-engine.js` — ranked multilingual search
+- `sw.js` — offline app shell cache
+- `manifest.webmanifest` — install metadata
+- `tests/` — data and search tests
+
+## Limitations
+- Voice search depends on browser support and may use the browser's speech service.
+- Sentence lookup currently matches exact Devanagari headwords from the starter dataset; it is not a full Hindi tokenizer or grammatical analyser.
+- The quiz uses the current dataset and saved words; it is a lightweight practice aid, not an adaptive learning system.
+- No formal linguistic review or source citation has yet been completed for all 55 records.
 
 ## Licence
 No licence has been selected yet. Add one before inviting reuse.

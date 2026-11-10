@@ -1,0 +1,13 @@
+{
+  "name": "Garuda Hindi Dictionary",
+  "short_name": "Garuda",
+  "description": "A Hindi-English dictionary for curious minds.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#315b49",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

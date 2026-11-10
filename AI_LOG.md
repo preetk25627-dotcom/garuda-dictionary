@@ -1,30 +1,39 @@
-# AI assistance log
+# AI-assisted development log — Garuda Dictionary
 
-This project was drafted and iterated with AI assistance in ChatGPT conversations for the existing public repository `preetk25627-dotcom/garuda-dictionary`. The separate PageBender project is not part of this repository.
+## Tools used
+- **ChatGPT (GPT-6):** planning the upgrade, reviewing the existing repository, drafting and integrating the ranked search module, interface enhancements, PWA shell, tests, and documentation.
+- **GitHub integration:** created the feature branch and committed repository changes.
+- **Node.js test runner / GitHub Actions:** validation path; the updated tests must be run and the workflow result checked before this work is described as fully verified.
+- **Manual browser testing:** still required on desktop and a real mobile device.
 
-## AI-assisted work
-- Suggested the static HTML/CSS/JavaScript project structure and visual direction.
-- Drafted the interface, responsive styles, starter dictionary data, search, filters, word detail dialog, saved words, and documentation.
-- Added defensive handling for malformed or unavailable browser storage.
-- Added an Adverbs filter to match the included adverb entry.
-- Added a GitHub Actions workflow to run the data-integrity test on pushes and pull requests.
-- Added a Node.js built-in test for starter-dataset structure.
+## Development approach
+Work is being done on the feat/advanced-dictionary branch so the existing main branch and production deployment are not changed until the upgrade is reviewed.
 
-## Human review required
-- Review every headword, spelling variant, Romanisation, part of speech, meaning, definition, and example against reliable references or with fluent Hindi speakers.
-- Confirm grammatical gender and usage information; gender metadata is not yet present.
-- Test desktop/mobile browsers, keyboard use, and assistive technologies.
-- Add a source/reference to each record.
-- Correct or remove inaccurate, ambiguous, or regionally unsuitable entries.
+## Changes in this iteration
+1. Extracted ranked search into search-engine.js.
+2. Added exact Hindi, Romanised and English matches, a small curated alias list, prefix ranking and conservative edit-distance matching for longer queries.
+3. Integrated search with existing part-of-speech and saved-word filters.
+4. Added alphabetical browsing, a lightweight practice quiz, Hindi speech-recognition input where supported, sentence headword lookup, and a larger-text toggle.
+5. Added speech playback and shareable word-card image generation in the word detail dialog.
+6. Added a web app manifest, SVG app icon and service worker for an installable/offline app shell.
+7. Added search-engine tests and updated the README to describe capabilities and limitations.
 
-## Verification status
-- The app uses plain HTML, CSS, and JavaScript; no build step is required.
-- The data-integrity test checks structure and required fields only; it does not establish linguistic correctness.
-- Browser-level interaction tests and independent linguistic review have not been completed.
-- Do not describe this starter dataset as fully verified until reviewed.
+## Decisions and limitations
+- Very short queries do not use fuzzy matching, to reduce irrelevant suggestions.
+- Search aliases are intentionally limited; they are convenience spellings, not a complete transliteration system.
+- Sentence lookup currently finds exact Devanagari headwords only. It is not a full Hindi tokenizer, lemmatizer or grammatical analyser.
+- Voice input and speech playback depend on browser/device support. Speech recognition may rely on the browser's remote speech service.
+- The service worker caches the app shell; first installation requires a successful online visit.
+- The 55 dictionary entries are still a starter dataset. Their meanings, transliterations, grammatical labels and examples have not all been independently verified against authoritative dictionaries or by a language expert.
+- Automated tests cover selected search behaviors and data structure; they do not prove linguistic correctness, accessibility compliance, browser compatibility or offline reliability.
 
-## Prompt / conversation record
-The owner requested a starter Hindi–English dictionary for the existing repository and explicitly asked not to mix in PageBender. Add a shareable conversation URL here if available.
+## Required manual verification
+- Run node --test tests/*.test.cjs and inspect the GitHub Actions result.
+- Test Devanagari, Romanised, English, alias and typo searches; confirm short queries do not produce noisy fuzzy matches.
+- Test filters, saved words, quiz, browse, voice input, sentence lookup, larger text, pronunciation and share-card export.
+- Install the PWA, then test reload/search with the network disabled.
+- Test keyboard navigation, focus visibility, dialog close behavior and a narrow mobile viewport.
+- Review dictionary content against reliable Hindi references and record the exact sources and corrections here.
 
-## Owner review notes
-Add dated notes describing what you personally checked, changed, rejected, tested, and why. This section is intentionally left for the owner to complete; no human review or testing is claimed here.
+## Prompt and contribution note
+The project owner should add the actual prompts they personally supplied and any external references they personally used. Do not claim manual checks, linguistic review, screenshots, user testing or offline verification until they have actually been completed.

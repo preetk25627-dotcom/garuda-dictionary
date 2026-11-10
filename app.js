@@ -1,3 +1,4 @@
+import { searchWords } from "./search-engine.js";
 const words=[
 ["प्रेम","prem","noun","love, affection","किसी के प्रति मन में होने वाला गहरा स्नेह और अपनापन।","प्रेम में सम्मान और विश्वास दोनों ज़रूरी हैं।","Respect and trust are both important in love."],
 ["आशा","aasha","noun","hope, expectation","किसी अच्छी बात के होने का विश्वास या इच्छा।","कठिन समय में भी आशा बनाए रखो।","Keep hope alive even in difficult times."],
@@ -61,8 +62,8 @@ function loadSaved(){try{const value=JSON.parse(localStorage.getItem("garuda-sav
 const saved=new Set(loadSaved());
 function persistSaved(){try{localStorage.setItem("garuda-saved",JSON.stringify([...saved]));return true}catch{return false}}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function render(){const q=search.value.trim().toLocaleLowerCase();const found=words.filter(w=>[w.hi,w.roman,w.meaning,w.definition,w.example,w.translation].join(" ").toLocaleLowerCase().includes(q)&&(filter==="all"||w.pos===filter)&&(!savedOnly||saved.has(w.id)));count.textContent=found.length+" "+(found.length===1?"word":"words");heading.textContent=savedOnly?"Saved words":q?"Search results":"Explore words";grid.innerHTML=found.map(w=>`<button class="word-card" data-id="${w.id}" type="button"><div class="card-top"><div><div class="word-hindi" lang="hi">${esc(w.hi)}</div><div class="word-roman">${esc(w.roman)}</div></div><span class="pos">${esc(w.pos)}</span></div><p class="word-meaning">${esc(w.meaning)}</p><p class="word-short" lang="hi">${esc(w.definition)}</p><span class="card-arrow">↗</span></button>`).join("");empty.hidden=found.length!==0;grid.hidden=found.length===0}
-function openWord(id){selected=words.find(w=>w.id===id);if(!selected)return;const w=selected;dialogContent.innerHTML=`<p class="eyebrow">WORD NO. ${String(w.id).padStart(2,"0")} · ${esc(w.pos.toUpperCase())}</p><h2 class="detail-word" lang="hi">${esc(w.hi)}</h2><p class="detail-roman">${esc(w.roman)}</p><p class="detail-meaning">${esc(w.meaning)}</p><p class="detail-definition" lang="hi">${esc(w.definition)}</p><p class="detail-label">IN A SENTENCE</p><div class="example" lang="hi">${esc(w.example)}<small>${esc(w.translation)}</small></div><button class="save-word ${saved.has(w.id)?"saved":""}" id="saveWord">${saved.has(w.id)?"♥ Saved":"♡ Save word"}</button>`;dialog.showModal();document.getElementById("saveWord").addEventListener("click",()=>{saved.has(w.id)?saved.delete(w.id):saved.add(w.id);persistSaved();document.getElementById("savedCount").textContent=saved.size;document.getElementById("saveWord").classList.toggle("saved",saved.has(w.id));document.getElementById("saveWord").textContent=saved.has(w.id)?"♥ Saved":"♡ Save word";render()})}
+function render(){const q=search.value.trim();const found=searchWords(words,q,{filter,savedOnly,savedIds:[...saved]});count.textContent=found.length+" "+(found.length===1?"word":"words");heading.textContent=savedOnly?"Saved words":q?"Search results":"Explore words";grid.innerHTML=found.map(w=>`<button class="word-card" data-id="${w.id}" type="button"><div class="card-top"><div><div class="word-hindi" lang="hi">${esc(w.hi)}</div><div class="word-roman">${esc(w.roman)}</div></div><span class="pos">${esc(w.pos)}</span></div><p class="word-meaning">${esc(w.meaning)}</p><p class="word-short" lang="hi">${esc(w.definition)}</p><span class="card-arrow">↗</span></button>`).join("");empty.hidden=found.length!==0;grid.hidden=found.length===0}
+function openWord(id){selected=words.find(w=>w.id===id);if(!selected)return;const w=selected;dialogContent.innerHTML=`<p class="eyebrow">WORD NO. ${String(w.id).padStart(2,"0")} · ${esc(w.pos.toUpperCase())}</p><h2 class="detail-word" lang="hi">${esc(w.hi)}</h2><p class="detail-roman">${esc(w.roman)}</p><p class="detail-meaning">${esc(w.meaning)}</p><p class="detail-definition" lang="hi">${esc(w.definition)}</p><p class="detail-label">IN A SENTENCE</p><div class="example" lang="hi">${esc(w.example)}<small>${esc(w.translation)}</small></div><div class="detail-actions"><button type="button" class="tool-button" id="shareWord">↗ Share card</button><button type="button" class="tool-button" id="speakWord">◖ Listen</button></div><button class="save-word ${saved.has(w.id)?"saved":""}" id="saveWord">${saved.has(w.id)?"♥ Saved":"♡ Save word"}</button>`;dialog.showModal();document.getElementById("saveWord").addEventListener("click",()=>{saved.has(w.id)?saved.delete(w.id):saved.add(w.id);persistSaved();document.getElementById("savedCount").textContent=saved.size;document.getElementById("saveWord").classList.toggle("saved",saved.has(w.id));document.getElementById("saveWord").textContent=saved.has(w.id)?"♥ Saved":"♡ Save word";render()})}
 grid.addEventListener("click",e=>{const card=e.target.closest("[data-id]");if(card)openWord(Number(card.dataset.id))});search.addEventListener("input",render);
 document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector(".filter.active").classList.remove("active");btn.classList.add("active");filter=btn.dataset.filter;render()}));
 document.querySelectorAll(".hint-word").forEach(btn=>btn.addEventListener("click",()=>{search.value=btn.dataset.query;savedOnly=false;render();search.focus()}));
@@ -71,3 +72,114 @@ document.getElementById("clearSearch").addEventListener("click",()=>{search.valu
 document.getElementById("dialogClose").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
 document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});
 document.getElementById("savedCount").textContent=saved.size;render();
+
+// --- Advanced dictionary tools ---
+const browsePanel = document.getElementById("browsePanel");
+const sentenceInput = document.getElementById("sentenceInput");
+const sentenceOutput = document.getElementById("sentenceOutput");
+const hindiAlphabet = [..."अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह"];
+const safeText = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+document.getElementById("browseToggle").addEventListener("click", () => {
+  browsePanel.hidden = !browsePanel.hidden;
+  if (!browsePanel.hidden) renderBrowse();
+});
+function renderBrowse() {
+  const groups = new Map(hindiAlphabet.map(letter => [letter, words.filter(w => w.hi.startsWith(letter))]));
+  browsePanel.innerHTML = hindiAlphabet.map(letter => {
+    const group = groups.get(letter);
+    if (!group.length) return "";
+    return `<section class="browse-group"><h3>${letter}</h3><div>${group.map(w => `<button type="button" class="browse-word" data-browse-id="${w.id}">${safeText(w.hi)} <small>${safeText(w.meaning.split(",")[0])}</small></button>`).join("")}</div></section>`;
+  }).join("");
+  browsePanel.querySelectorAll("[data-browse-id]").forEach(button => button.addEventListener("click", () => openWord(Number(button.dataset.browseId))));
+}
+document.getElementById("practiceStart").addEventListener("click", startPractice);
+function startPractice() {
+  const pool = (saved.size ? words.filter(w => saved.has(w.id)) : words).slice();
+  if (pool.length < 2) { alert("Save at least two words to start a saved-word quiz."); return; }
+  const questions = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, pool.length));
+  let index = 0, score = 0;
+  function showQuestion() {
+    const current = questions[index];
+    const options = [current, ...pool.filter(w => w.id !== current.id).sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
+    dialogContent.innerHTML = `<p class="eyebrow">PRACTICE · ${index + 1}/${questions.length}</p><h2 class="detail-word" lang="hi">${safeText(current.hi)}</h2><p>Choose the correct meaning</p><div class="quiz-options">${options.map(w => `<button type="button" class="quiz-option" data-answer="${w.id}">${safeText(w.meaning)}</button>`).join("")}</div><p id="quizFeedback" aria-live="polite"></p>`;
+    dialog.showModal();
+    dialogContent.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => {
+      dialogContent.querySelectorAll("[data-answer]").forEach(b => b.disabled = true);
+      const correct = Number(button.dataset.answer) === current.id;
+      if (correct) score++;
+      document.getElementById("quizFeedback").textContent = correct ? "Correct! ✓" : "Not quite — " + current.meaning;
+      const next = document.createElement("button");
+      next.className = "save-word"; next.textContent = index + 1 === questions.length ? "See score" : "Next question";
+      next.addEventListener("click", () => {
+        index++;
+        if (index < questions.length) showQuestion();
+        else { dialogContent.innerHTML = `<p class="eyebrow">PRACTICE COMPLETE</p><h2 class="detail-word">${score}/${questions.length}</h2><p>You answered ${score} correctly.</p><button class="save-word" id="quizDone">Done</button>`; document.getElementById("quizDone").addEventListener("click", () => dialog.close()); }
+      });
+      dialogContent.append(next);
+    }));
+  }
+  showQuestion();
+}
+document.getElementById("voiceSearch").addEventListener("click", () => {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) { alert("Voice search is not supported in this browser. Try the latest Chrome."); return; }
+  const recognition = new Recognition();
+  recognition.lang = "hi-IN"; recognition.interimResults = false;
+  recognition.onresult = event => { search.value = event.results[0][0].transcript; savedOnly = false; render(); };
+  recognition.onerror = () => alert("Voice search could not hear that. Please try again.");
+  recognition.start();
+});
+document.getElementById("textSizeToggle").addEventListener("click", event => {
+  document.body.classList.toggle("large-text");
+  event.currentTarget.textContent = document.body.classList.contains("large-text") ? "A− Normal text" : "A+ Larger text";
+});
+document.getElementById("sentenceFind").addEventListener("click", () => {
+  const sentence = sentenceInput.value.trim();
+  if (!sentence) { sentenceOutput.textContent = "Enter a Hindi sentence first."; return; }
+  const found = words.filter(w => sentence.includes(w.hi));
+  sentenceOutput.innerHTML = found.length
+    ? `<p>Found ${found.length} dictionary word(s):</p>` + found.map(w => `<button type="button" class="browse-word" data-sentence-id="${w.id}">${safeText(w.hi)} — ${safeText(w.meaning)}</button>`).join("")
+    : "<p>No exact headword matches found in the starter collection.</p>";
+  sentenceOutput.querySelectorAll("[data-sentence-id]").forEach(button => button.addEventListener("click", () => openWord(Number(button.dataset.sentenceId))));
+});
+const installButton = document.getElementById("installApp");
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); installPrompt = event; installButton.hidden = false; });
+installButton.addEventListener("click", async () => { if (!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; installButton.hidden = true; });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+dialogContent.addEventListener("click", async event => {
+  if (event.target.closest("#speakWord") && selected) {
+    if (!("speechSynthesis" in window)) { alert("Speech playback is not supported in this browser."); return; }
+    const utterance = new SpeechSynthesisUtterance(selected.hi);
+    utterance.lang = "hi-IN";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  }
+  if (event.target.closest("#shareWord") && selected) {
+    const w = selected;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080; canvas.height = 720;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#f7f5ef"; context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "#315b49"; context.fillRect(0, 0, canvas.width, 18);
+    context.fillStyle = "#244636"; context.font = "bold 76px sans-serif"; context.fillText(w.hi, 90, 210);
+    context.fillStyle = "#777b70"; context.font = "32px sans-serif"; context.fillText(w.roman, 94, 270);
+    context.fillStyle = "#20251f"; context.font = "42px Georgia"; context.fillText(w.meaning.slice(0, 38), 90, 370);
+    context.fillStyle = "#555"; context.font = "28px sans-serif";
+    const definition = w.definition.slice(0, 66);
+    context.fillText(definition, 90, 445);
+    context.fillStyle = "#315b49"; context.font = "bold 26px sans-serif"; context.fillText("GARUDA · HINDI DICTIONARY", 90, 630);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    if (!blob) { alert("Could not create the share image."); return; }
+    const file = new File([blob], "garuda-word.png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+      try { await navigator.share({ title: "Garuda Dictionary · " + w.hi, files: [file] }); } catch (error) { if (error.name !== "AbortError") alert("Sharing is unavailable. The image will download instead."); }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a"); link.href = url; link.download = "garuda-" + w.id + ".png"; link.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+});
