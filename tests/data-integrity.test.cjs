@@ -29,5 +29,8 @@ test("dictionary starter dataset has 55 records with required fields", () => {
 
 test("the README distinguishes structural checks from linguistic validation", () => {
   const readme = fs.readFileSync(path.join(__dirname, "..", "README.md"), "utf8");
-  assert.match(readme, /do \*\*not\*\* verify linguistic accuracy/i);
+  assert.match(
+  readme,
+  /do not establish that every dictionary meaning.*independently reviewed by a linguist/i
+);
 });
