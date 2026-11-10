@@ -6,6 +6,8 @@ This project was drafted and iterated with AI assistance in ChatGPT conversation
 - Suggested the static HTML/CSS/JavaScript project structure and visual direction.
 - Drafted the interface, responsive styles, starter dictionary data, search, filters, word detail dialog, saved words, and documentation.
 - Added defensive handling for malformed or unavailable browser storage.
+- Added an Adverbs filter to match the included adverb entry.
+- Added a GitHub Actions workflow to run the data-integrity test on pushes and pull requests.
 - Added a Node.js built-in test for starter-dataset structure.
 
 ## Human review required
