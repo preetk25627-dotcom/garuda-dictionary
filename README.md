@@ -6,7 +6,7 @@ A lightweight Hindi–English dictionary with search across Devanagari, Romanise
 - 55 starter entries with Hindi headwords, Roman spellings, parts of speech, English glosses, Hindi definitions, and bilingual examples.
 - Search across Devanagari, Romanised spelling, English meaning, definitions, and examples.
 - Filter by part of speech.
-- Save favourite words in browser localStorage.
+- Save favourite words in browser localStorage (with graceful handling if browser storage is unavailable).
 - Responsive layout and Cmd/Ctrl + K search shortcut.
 - No framework, package installation, or build step.
 
@@ -15,18 +15,28 @@ A lightweight Hindi–English dictionary with search across Devanagari, Romanise
 2. Open index.html in a browser, or run `python3 -m http.server 8000`.
 3. Visit http://localhost:8000.
 
+## Run data-integrity tests
+Requires Node.js 18 or later; no third-party packages are needed.
+
+```bash
+node --test tests/*.test.js
+```
+
+These tests check dataset structure and required fields only. They do **not** verify linguistic accuracy.
+
 ## Project files
 - index.html — page structure
 - styles.css — responsive interface
 - app.js — dictionary records and interactions
+- tests/data-integrity.test.js — starter-dataset integrity checks
 
 ## Data quality
 The included records are a starter dataset, not a certified lexicon. Hindi spellings, transliterations, grammatical labels, meanings, and example usage need review by fluent Hindi speakers and reliable dictionaries before production or formal submission. Romanisation is a practical search aid, not one strict transliteration standard. Gender metadata and source citations are not yet included.
 
 ## Next steps
-- Verify every entry and record references.
+- Verify every entry and record references with fluent Hindi speakers or reliable dictionaries.
 - Add gender and inflection information where useful.
-- Add tests for search, filters, and saved words.
+- Add browser-level tests for search, filters, dialogs, and saved words.
 - Add accessible pronunciation and offline support.
 - Add contribution guidelines.
 
