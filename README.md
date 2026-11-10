@@ -32,6 +32,9 @@ These tests check dataset structure and required fields only. They do **not** ve
 - index.html — page structure
 - styles.css — responsive interface
 - app.js — dictionary records and interactions
+- `tests/data-integrity.test.js` — dependency-free starter-data structure test
+- `DEMO_SCRIPT.md` — 2–3 minute recording outline
+- `DRIVE_README.md` — prepared contents for the submission Drive folder
 - tests/data-integrity.test.js — starter-dataset integrity checks
 
 ## Data quality
