@@ -2,6 +2,10 @@
 
 A lightweight Hindi–English dictionary with search across Devanagari, Romanised Hindi, and English.
 
+## Live demo
+
+Production URL: https://garuda-dictionary.vercel.app
+
 ## Features
 - 55 starter entries with Hindi headwords, Roman spellings, parts of speech, English glosses, Hindi definitions, and bilingual examples.
 - Search across Devanagari, Romanised spelling, English meaning, definitions, and examples.
