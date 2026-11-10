@@ -72,3 +72,79 @@ document.getElementById("clearSearch").addEventListener("click",()=>{search.valu
 document.getElementById("dialogClose").addEventListener("click",()=>dialog.close());dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close()});
 document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();search.focus()}});
 document.getElementById("savedCount").textContent=saved.size;render();
+
+// --- Advanced dictionary tools ---
+const browsePanel = document.getElementById("browsePanel");
+const sentenceInput = document.getElementById("sentenceInput");
+const sentenceOutput = document.getElementById("sentenceOutput");
+const hindiAlphabet = [..."अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह"];
+const safeText = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+document.getElementById("browseToggle").addEventListener("click", () => {
+  browsePanel.hidden = !browsePanel.hidden;
+  if (!browsePanel.hidden) renderBrowse();
+});
+function renderBrowse() {
+  const groups = new Map(hindiAlphabet.map(letter => [letter, words.filter(w => w.hi.startsWith(letter))]));
+  browsePanel.innerHTML = hindiAlphabet.map(letter => {
+    const group = groups.get(letter);
+    if (!group.length) return "";
+    return `<section class="browse-group"><h3>${letter}</h3><div>${group.map(w => `<button type="button" class="browse-word" data-browse-id="${w.id}">${safeText(w.hi)} <small>${safeText(w.meaning.split(",")[0])}</small></button>`).join("")}</div></section>`;
+  }).join("");
+  browsePanel.querySelectorAll("[data-browse-id]").forEach(button => button.addEventListener("click", () => openWord(Number(button.dataset.browseId))));
+}
+document.getElementById("practiceStart").addEventListener("click", startPractice);
+function startPractice() {
+  const pool = (saved.size ? words.filter(w => saved.has(w.id)) : words).slice();
+  if (pool.length < 2) { alert("Save at least two words to start a saved-word quiz."); return; }
+  const questions = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, pool.length));
+  let index = 0, score = 0;
+  function showQuestion() {
+    const current = questions[index];
+    const options = [current, ...pool.filter(w => w.id !== current.id).sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
+    dialogContent.innerHTML = `<p class="eyebrow">PRACTICE · ${index + 1}/${questions.length}</p><h2 class="detail-word" lang="hi">${safeText(current.hi)}</h2><p>Choose the correct meaning</p><div class="quiz-options">${options.map(w => `<button type="button" class="quiz-option" data-answer="${w.id}">${safeText(w.meaning)}</button>`).join("")}</div><p id="quizFeedback" aria-live="polite"></p>`;
+    dialog.showModal();
+    dialogContent.querySelectorAll("[data-answer]").forEach(button => button.addEventListener("click", () => {
+      dialogContent.querySelectorAll("[data-answer]").forEach(b => b.disabled = true);
+      const correct = Number(button.dataset.answer) === current.id;
+      if (correct) score++;
+      document.getElementById("quizFeedback").textContent = correct ? "Correct! ✓" : "Not quite — " + current.meaning;
+      const next = document.createElement("button");
+      next.className = "save-word"; next.textContent = index + 1 === questions.length ? "See score" : "Next question";
+      next.addEventListener("click", () => {
+        index++;
+        if (index < questions.length) showQuestion();
+        else { dialogContent.innerHTML = `<p class="eyebrow">PRACTICE COMPLETE</p><h2 class="detail-word">${score}/${questions.length}</h2><p>You answered ${score} correctly.</p><button class="save-word" id="quizDone">Done</button>`; document.getElementById("quizDone").addEventListener("click", () => dialog.close()); }
+      });
+      dialogContent.append(next);
+    }));
+  }
+  showQuestion();
+}
+document.getElementById("voiceSearch").addEventListener("click", () => {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) { alert("Voice search is not supported in this browser. Try the latest Chrome."); return; }
+  const recognition = new Recognition();
+  recognition.lang = "hi-IN"; recognition.interimResults = false;
+  recognition.onresult = event => { search.value = event.results[0][0].transcript; savedOnly = false; render(); };
+  recognition.onerror = () => alert("Voice search could not hear that. Please try again.");
+  recognition.start();
+});
+document.getElementById("textSizeToggle").addEventListener("click", event => {
+  document.body.classList.toggle("large-text");
+  event.currentTarget.textContent = document.body.classList.contains("large-text") ? "A− Normal text" : "A+ Larger text";
+});
+document.getElementById("sentenceFind").addEventListener("click", () => {
+  const sentence = sentenceInput.value.trim();
+  if (!sentence) { sentenceOutput.textContent = "Enter a Hindi sentence first."; return; }
+  const found = words.filter(w => sentence.includes(w.hi));
+  sentenceOutput.innerHTML = found.length
+    ? `<p>Found ${found.length} dictionary word(s):</p>` + found.map(w => `<button type="button" class="browse-word" data-sentence-id="${w.id}">${safeText(w.hi)} — ${safeText(w.meaning)}</button>`).join("")
+    : "<p>No exact headword matches found in the starter collection.</p>";
+  sentenceOutput.querySelectorAll("[data-sentence-id]").forEach(button => button.addEventListener("click", () => openWord(Number(button.dataset.sentenceId))));
+});
+const installButton = document.getElementById("installApp");
+let installPrompt = null;
+window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); installPrompt = event; installButton.hidden = false; });
+installButton.addEventListener("click", async () => { if (!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; installButton.hidden = true; });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(() => {});
