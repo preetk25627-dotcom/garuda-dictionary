@@ -1,11 +1,12 @@
 # AI assistance log
 
-This initial version was drafted with AI assistance in a ChatGPT conversation for the existing public repository `preetk25627-dotcom/garuda-dictionary`. The separate PageBender project is not part of this repository.
+This project was drafted and iterated with AI assistance in ChatGPT conversations for the existing public repository `preetk25627-dotcom/garuda-dictionary`. The separate PageBender project is not part of this repository.
 
-## AI-assisted work in this commit
+## AI-assisted work
 - Suggested the static HTML/CSS/JavaScript project structure and visual direction.
-- Drafted the interface, responsive styles, dictionary data, search, filters, word detail dialog, saved words, and documentation.
-- Implemented browser-local saved words and search across Devanagari, Romanised Hindi, English glosses, definitions, and examples.
+- Drafted the interface, responsive styles, starter dictionary data, search, filters, word detail dialog, saved words, and documentation.
+- Added defensive handling for malformed or unavailable browser storage.
+- Added a Node.js built-in test for starter-dataset structure.
 
 ## Human review required
 - Review every headword, spelling variant, Romanisation, part of speech, meaning, definition, and example against reliable references or with fluent Hindi speakers.
@@ -16,7 +17,8 @@ This initial version was drafted with AI assistance in a ChatGPT conversation fo
 
 ## Verification status
 - The app uses plain HTML, CSS, and JavaScript; no build step is required.
-- No automated test suite or independent linguistic review has been completed as part of this initial commit.
+- The data-integrity test checks structure and required fields only; it does not establish linguistic correctness.
+- Browser-level interaction tests and independent linguistic review have not been completed.
 - Do not describe this starter dataset as fully verified until reviewed.
 
 ## Prompt / conversation record
