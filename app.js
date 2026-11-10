@@ -63,7 +63,7 @@ const saved=new Set(loadSaved());
 function persistSaved(){try{localStorage.setItem("garuda-saved",JSON.stringify([...saved]));return true}catch{return false}}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function render(){const q=search.value.trim();const found=searchWords(words,q,{filter,savedOnly,savedIds:[...saved]});count.textContent=found.length+" "+(found.length===1?"word":"words");heading.textContent=savedOnly?"Saved words":q?"Search results":"Explore words";grid.innerHTML=found.map(w=>`<button class="word-card" data-id="${w.id}" type="button"><div class="card-top"><div><div class="word-hindi" lang="hi">${esc(w.hi)}</div><div class="word-roman">${esc(w.roman)}</div></div><span class="pos">${esc(w.pos)}</span></div><p class="word-meaning">${esc(w.meaning)}</p><p class="word-short" lang="hi">${esc(w.definition)}</p><span class="card-arrow">↗</span></button>`).join("");empty.hidden=found.length!==0;grid.hidden=found.length===0}
-function openWord(id){selected=words.find(w=>w.id===id);if(!selected)return;const w=selected;dialogContent.innerHTML=`<p class="eyebrow">WORD NO. ${String(w.id).padStart(2,"0")} · ${esc(w.pos.toUpperCase())}</p><h2 class="detail-word" lang="hi">${esc(w.hi)}</h2><p class="detail-roman">${esc(w.roman)}</p><p class="detail-meaning">${esc(w.meaning)}</p><p class="detail-definition" lang="hi">${esc(w.definition)}</p><p class="detail-label">IN A SENTENCE</p><div class="example" lang="hi">${esc(w.example)}<small>${esc(w.translation)}</small></div><button class="save-word ${saved.has(w.id)?"saved":""}" id="saveWord">${saved.has(w.id)?"♥ Saved":"♡ Save word"}</button>`;dialog.showModal();document.getElementById("saveWord").addEventListener("click",()=>{saved.has(w.id)?saved.delete(w.id):saved.add(w.id);persistSaved();document.getElementById("savedCount").textContent=saved.size;document.getElementById("saveWord").classList.toggle("saved",saved.has(w.id));document.getElementById("saveWord").textContent=saved.has(w.id)?"♥ Saved":"♡ Save word";render()})}
+function openWord(id){selected=words.find(w=>w.id===id);if(!selected)return;const w=selected;dialogContent.innerHTML=`<p class="eyebrow">WORD NO. ${String(w.id).padStart(2,"0")} · ${esc(w.pos.toUpperCase())}</p><h2 class="detail-word" lang="hi">${esc(w.hi)}</h2><p class="detail-roman">${esc(w.roman)}</p><p class="detail-meaning">${esc(w.meaning)}</p><p class="detail-definition" lang="hi">${esc(w.definition)}</p><p class="detail-label">IN A SENTENCE</p><div class="example" lang="hi">${esc(w.example)}<small>${esc(w.translation)}</small></div><div class="detail-actions"><button type="button" class="tool-button" id="shareWord">↗ Share card</button><button type="button" class="tool-button" id="speakWord">◖ Listen</button></div><button class="save-word ${saved.has(w.id)?"saved":""}" id="saveWord">${saved.has(w.id)?"♥ Saved":"♡ Save word"}</button>`;dialog.showModal();document.getElementById("saveWord").addEventListener("click",()=>{saved.has(w.id)?saved.delete(w.id):saved.add(w.id);persistSaved();document.getElementById("savedCount").textContent=saved.size;document.getElementById("saveWord").classList.toggle("saved",saved.has(w.id));document.getElementById("saveWord").textContent=saved.has(w.id)?"♥ Saved":"♡ Save word";render()})}
 grid.addEventListener("click",e=>{const card=e.target.closest("[data-id]");if(card)openWord(Number(card.dataset.id))});search.addEventListener("input",render);
 document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector(".filter.active").classList.remove("active");btn.classList.add("active");filter=btn.dataset.filter;render()}));
 document.querySelectorAll(".hint-word").forEach(btn=>btn.addEventListener("click",()=>{search.value=btn.dataset.query;savedOnly=false;render();search.focus()}));
@@ -148,3 +148,38 @@ let installPrompt = null;
 window.addEventListener("beforeinstallprompt", event => { event.preventDefault(); installPrompt = event; installButton.hidden = false; });
 installButton.addEventListener("click", async () => { if (!installPrompt) return; installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; installButton.hidden = true; });
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+dialogContent.addEventListener("click", async event => {
+  if (event.target.closest("#speakWord") && selected) {
+    if (!("speechSynthesis" in window)) { alert("Speech playback is not supported in this browser."); return; }
+    const utterance = new SpeechSynthesisUtterance(selected.hi);
+    utterance.lang = "hi-IN";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+  }
+  if (event.target.closest("#shareWord") && selected) {
+    const w = selected;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080; canvas.height = 720;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#f7f5ef"; context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "#315b49"; context.fillRect(0, 0, canvas.width, 18);
+    context.fillStyle = "#244636"; context.font = "bold 76px sans-serif"; context.fillText(w.hi, 90, 210);
+    context.fillStyle = "#777b70"; context.font = "32px sans-serif"; context.fillText(w.roman, 94, 270);
+    context.fillStyle = "#20251f"; context.font = "42px Georgia"; context.fillText(w.meaning.slice(0, 38), 90, 370);
+    context.fillStyle = "#555"; context.font = "28px sans-serif";
+    const definition = w.definition.slice(0, 66);
+    context.fillText(definition, 90, 445);
+    context.fillStyle = "#315b49"; context.font = "bold 26px sans-serif"; context.fillText("GARUDA · HINDI DICTIONARY", 90, 630);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    if (!blob) { alert("Could not create the share image."); return; }
+    const file = new File([blob], "garuda-word.png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+      try { await navigator.share({ title: "Garuda Dictionary · " + w.hi, files: [file] }); } catch (error) { if (error.name !== "AbortError") alert("Sharing is unavailable. The image will download instead."); }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a"); link.href = url; link.download = "garuda-" + w.id + ".png"; link.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+});
